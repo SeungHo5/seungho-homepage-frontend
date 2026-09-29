@@ -1,39 +1,109 @@
 import { useState, useEffect } from 'react'
+import { Link, NavLink, useLocation } from 'react-router-dom'
+
 import { useAuth } from '../context/AuthContext'
 import LoginModal from './LoginModal'
 
-type Page = 'home' | 'portfolio' | 'blog' | 'troubleshooting' | 'study' | 'lab' | 'contact'
 
-// NAV_ITEMS는 네비게이션 바에 표시될 메뉴 항목들을 정의한 배열
-// 각 항목은 id와 label을 가지며, id는 Page 타입으로 제한되어 있음
-// label은 화면에 표시될 텍스트를 나타냄
-const NAV_ITEMS: { id: Page; label: string }[] = [
-  { id: 'home', label: 'Home' },
-  { id: 'portfolio', label: 'Portfolio' },
-  { id: 'blog', label: 'Blog' },
-  { id: 'troubleshooting', label: 'Troubleshooting' },
-  { id: 'study', label: 'Study' },
-  { id: 'lab', label: 'Lab' },
-  { id: 'contact', label: 'Contact' },
+// Navbar에 표시할 메뉴 정보.
+//
+// 기존에는
+// { id: 'portfolio', label: 'Portfolio' }
+//
+// 처럼 React state에서 사용할 id를 저장했지만,
+// 이제는 Router를 사용하기 때문에 실제 URL(path)을 저장한다.
+//
+// adminOnly
+// → true이면 관리자 로그인 상태에서만 메뉴에 표시
+
+const NAV_ITEMS = [
+  {
+    path: '/',
+    label: 'Home',
+    adminOnly: false,
+  },
+  {
+    path: '/portfolio',
+    label: 'Portfolio',
+    adminOnly: false,
+  },
+  {
+    path: '/blog',
+    label: 'Blog',
+    adminOnly: true,
+  },
+  {
+    path: '/troubleshooting',
+    label: 'Troubleshooting',
+    adminOnly: false,
+  },
+  {
+    path: '/study',
+    label: 'Study',
+    adminOnly: true,
+  },
+  {
+    path: '/lab',
+    label: 'Lab',
+    adminOnly: true,
+  },
+  {
+    path: '/contact',
+    label: 'Contact',
+    adminOnly: false,
+  }
 ]
 
-// interface는 이 객체는 어떤 모양으로 생겨야 하는지 정해주는 설계도
-// NavbarProps라는 객체는 currentPage라는 Page 타입과 onNavigate라는 함수 타입을 가지고
-// onNavigate 함수는 Page 타입의 인자를 받아서 반환하는 값은 없음
-interface NavbarProps {
-  currentPage: Page
-  onNavigate: (page: Page) => void
-}
+export default function Navbar() {
+  
+  // AuthContext에서 로그인 상태와 로그아웃 함수를 가져온다.
+  //
+  // isAdmin === true
+  // → 관리자 로그인 상태
+  //
+  // isAdmin === false
+  // → 로그아웃 상태
 
-// App.tsx에서 Navbar 컴포넌트를 호출할 때 currentPage와 onNavigate를 props로 전달
-// interface NavbarProps를 사용하여 props의 타입을 정의
-export default function Navbar({ currentPage, onNavigate }: NavbarProps) {
-  // useAuth 훅을 사용하여 인증 관련 상태(isAdmin, logout)를 가져옴
-  // useState 훅을 사용하여 scrolled, menuOpen, showLogin 상태를 관리
   const { isAdmin, logout } = useAuth()
+
+  // 현재 브라우저 URL 정보를 가져온다.
+  //
+  // 예:
+  // https://seungho.cloud/portfolio
+  //
+  // location.pathname
+  // → "/portfolio"
+  //
+  // 기존 currentPage props의 역할을
+  // 이제 Router의 URL 정보가 대신한다.
+  const location = useLocation()
+  
   const [scrolled, setScrolled] = useState(false)
   const [menuOpen, setMenuOpen] = useState(false)
   const [showLogin, setShowLogin] = useState(false)
+
+  // 현재 로그인 상태에 따라 Navbar에 표시할 메뉴를 결정한다.
+  //
+  // 로그아웃 상태:
+  //
+  // Home
+  // Portfolio
+  // Troubleshooting
+  // Contact
+  //
+  // 관리자 로그인 상태:
+  //
+  // Home
+  // Portfolio
+  // Blog
+  // Troubleshooting
+  // Study
+  // Lab
+  // Contact
+  const visibleNavItems = NAV_ITEMS.filter(
+    (item) => !item.adminOnly || isAdmin
+  )
+
 
   // useEffect 훅을 사용하여 스크롤 이벤트를 감지하고 scrolled 상태를 업데이트
   // handler라는 함수를 만들고 scroll 이벤트가 발생할때마다 handler 함수가 실행
@@ -42,8 +112,13 @@ export default function Navbar({ currentPage, onNavigate }: NavbarProps) {
   // useEffect에서 return은 cleanup 함수
   // cleanup 함수는 이 Effect가 끝낼 때 이 정리 작업을 수행하도록 설정 (보통 Navbar 컴포넌트가 사라질 때 이벤트 리스너를 제거)
   useEffect(() => {
-    const handler = () => setScrolled(window.scrollY > 40)
-    window.addEventListener('scroll', handler, { passive: true })
+    const handler = () => {
+      setScrolled(window.scrollY > 40)
+    }
+    
+    window.addEventListener('scroll', handler, {
+       passive: true ,
+      })
     return () => window.removeEventListener('scroll', handler)
   }, [])
 
@@ -79,9 +154,24 @@ export default function Navbar({ currentPage, onNavigate }: NavbarProps) {
             justifyContent: 'space-between',
           }}
         >
-          {/* Logo */}
-          <button
-            onClick={() => onNavigate('home')}
+          {/* ===================================
+              Logo
+              ===================================
+
+              기존:
+              button
+                ↓
+              onNavigate('home')
+
+              변경:
+              Link
+                ↓
+              to="/"
+
+              로고 클릭 시 Home URL로 이동한다.
+          */}
+          <Link
+            to="/"
             style={{ display: 'flex', alignItems: 'center', gap: '10px', background: 'none', border: 'none', cursor: 'pointer', padding: 0 }}
           >
             <div style={{ width: '36px', height: '36px', border: '1.5px solid #f59e0b', borderRadius: '8px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontFamily: "'JetBrains Mono', monospace", fontSize: '13px', fontWeight: 600, color: '#f59e0b' }}>
@@ -90,24 +180,31 @@ export default function Navbar({ currentPage, onNavigate }: NavbarProps) {
             <span style={{ fontFamily: "'Outfit', sans-serif", fontWeight: 700, fontSize: '15px', color: '#f4f4f5', letterSpacing: '-0.01em' }}>
               SeungHo's Blog
             </span>
-          </button>
+          </Link>
 
           {/* Desktop nav */}
           <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }} className="hidden md:flex">
-            {/* map은 배열의 값을 하나씩 꺼내서 새로운 형태로 만들어주는 함수
-              NAV_ITEMS 배열의 각 항목을 순회하면서 새로운 버튼 요소를 생성
-              순회 하는 값들은 item이라는 변수에 담기고, item.id와 item.label을 사용하여 버튼의 key와 텍스트 설정
+            {/*
+              visibleNavItems를 map으로 순회해서
+              Navbar 메뉴들을 생성한다.
             */}
-            {NAV_ITEMS.map((item) => {
-              // active는 현재 페이지가 item.id와 일치하는지 여부를 나타내는 boolean 값
-              // 만약 현재 페이지가 item.id와 일치하면 active는 true, 그렇지 않으면 false
-              const active = currentPage === item.id
+            {visibleNavItems.map((item) => {
+              // 현재 브라우저의 URL 경로와 메뉴의 path를 비교한다.
+              //
+              // 예:
+              // location.pathname === '/portfolio'
+              // item.path === '/portfolio'
+              //
+              // 둘이 같으면 현재 활성화된 메뉴이므로 active는 true.
+              const active = location.pathname === item.path
               
               return (
-                // 버튼 요소를 생성하고, 클릭 시 onNavigate 함수를 호출하여 페이지를 변경
-                <button
-                  key={item.id}
-                  onClick={() => onNavigate(item.id)}
+                // NavLink를 사용하여 해당 URL로 이동한다.
+                // 페이지 전체를 새로고침하지 않고 React Router가 화면을 전환한다.
+                <NavLink
+                key={item.path}
+                  to={item.path}
+                  end={item.path === '/'}
                   style={{
                     position: 'relative',
                     background: 'none',
@@ -124,14 +221,15 @@ export default function Navbar({ currentPage, onNavigate }: NavbarProps) {
                   }}
                   // onMouseEnter 이벤트는 마우스가 버튼 위로 올라갔을 때 실행되는 이벤트로 e.currentTarget은 이벤트가 발생한 요소를 가리킴
                   // active가 false일 때만 색상을 변경하도록 조건부로 설정
-                  onMouseEnter={(e) => { if (!active) (e.currentTarget as HTMLButtonElement).style.color = '#f4f4f5' }}
-                  onMouseLeave={(e) => { if (!active) (e.currentTarget as HTMLButtonElement).style.color = 'rgba(244,244,245,0.6)' }}
+                  onMouseEnter={(e) => { if (!active) {e.currentTarget.style.color = '#f4f4f5' }}}
+                  onMouseLeave={(e) => { if (!active) {e.currentTarget.style.color = 'rgba(244,244,245,0.6)' }}}
                 >
                   {item.label}
+
                   {active && (
                     <span style={{ position: 'absolute', bottom: '4px', left: '50%', transform: 'translateX(-50%)', width: '4px', height: '4px', borderRadius: '50%', backgroundColor: '#f59e0b' }} />
                   )}
-                </button>
+                </NavLink>
               )
             })}
   
@@ -209,12 +307,14 @@ export default function Navbar({ currentPage, onNavigate }: NavbarProps) {
         {/* Mobile menu */}
         {menuOpen && (
           <div style={{ background: 'rgba(9,9,11,0.97)', borderTop: '1px solid rgba(255,255,255,0.06)', padding: '16px 24px 24px', display: 'flex', flexDirection: 'column', gap: '4px' }}>
-            {NAV_ITEMS.map((item) => {
-              const active = currentPage === item.id
+            {visibleNavItems.map((item) => {
+              const active = location.pathname === item.path
               return (
-                <button
-                  key={item.id}
-                  onClick={() => { onNavigate(item.id); setMenuOpen(false) }}
+                <NavLink
+                  key={item.path}
+                  to={item.path}
+                  end={item.path === '/'}
+                  onClick={() => { setMenuOpen(false) }}
                   style={{
                     background: 'none', border: 'none', cursor: 'pointer', padding: '12px 0',
                     fontFamily: "'Outfit', sans-serif", fontSize: '16px',
@@ -225,7 +325,7 @@ export default function Navbar({ currentPage, onNavigate }: NavbarProps) {
                   }}
                 >
                   {item.label}
-                </button>
+                </NavLink>
               )
             })}
             <div style={{ paddingTop: '12px' }}>

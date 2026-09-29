@@ -1,10 +1,91 @@
-type Page = 'home' | 'portfolio' | 'blog' | 'troubleshooting' | 'study' | 'lab' | 'contact'
+// React Router의 Link를 사용하면
+// App.tsx에서 onNavigate 함수를 props로 전달받지 않고도
+// Footer에서 직접 원하는 URL로 이동할 수 있다.
+import { Link } from 'react-router-dom'
 
-interface FooterProps {
-  onNavigate: (page: Page) => void
-}
+// Blog / Study / Lab 같은 관리자 전용 메뉴를
+// 로그인 상태에 따라 보여주기 위해 AuthContext를 사용한다.
+import { useAuth } from '../context/AuthContext'
 
-export default function Footer({ onNavigate }: FooterProps) {
+// Footer의 NAVIGATE 영역에서 사용할 메뉴 정보.
+//
+// path
+// → 실제 이동할 URL
+//
+// adminOnly
+// → true인 메뉴는 관리자 로그인 상태에서만 보여준다.
+
+const FOOTER_NAV_ITEMS = [
+  {
+    path: '/portfolio',
+    label: 'Portfolio',
+    adminOnly: false,
+  },
+  {
+    path: '/blog',
+    label: 'Blog',
+    adminOnly: true,
+  },
+  {
+    path: '/troubleshooting',
+    label: 'Troubleshooting',
+    adminOnly: false,
+  },
+  { 
+    path: '/study',
+    label: 'Study',
+    adminOnly: true,
+  },
+  {
+    path: '/lab',
+    label: 'Lab',
+    adminOnly: true,
+  },
+  {
+    path: '/contact',
+    label: 'Contact',
+    adminOnly: false,
+  },
+]
+
+// 기존:
+//
+// interface FooterProps {
+//   onNavigate: (page: Page) => void
+// }
+//
+// export default function Footer({ onNavigate }: FooterProps)
+//
+// Router 적용 후에는 Footer가 직접 Link를 사용하기 때문에
+// 더 이상 navigation props가 필요하지 않는다.
+
+export default function Footer() {
+  // 관리자 로그인 여부를 가져온다.
+  //
+  // isAdmin === true
+  // → Blog / Study / Lab까지 Footer에 표시
+  //
+  // isAdmin === false
+  // → 공개 메뉴만 표시
+  const { isAdmin } = useAuth()
+
+  // 공개 메뉴이거나 관리자 로그인 상태인 메뉴만 남긴다.
+  //
+  // 예:
+  //
+  // Blog
+  // adminOnly === true
+  //
+  // 로그아웃:
+  // false || false → false → 숨김
+  //
+  // 로그인:
+  // false || true → true → 표시
+  const visibleNavItems = FOOTER_NAV_ITEMS.filter(
+    (item) => !item.adminOnly || isAdmin
+  )
+
+
   return (
     <footer
       style={{
@@ -70,10 +151,10 @@ export default function Footer({ onNavigate }: FooterProps) {
             <p style={{ fontSize: '11px', fontWeight: 600, color: '#f59e0b', letterSpacing: '0.1em', marginBottom: '16px', fontFamily: "'JetBrains Mono', monospace" }}>
               NAVIGATE
             </p>
-            {(['portfolio', 'blog', 'troubleshooting', 'study', 'lab', 'contact'] as Page[]).map((p) => (
-              <button
-                key={p}
-                onClick={() => onNavigate(p)}
+            {visibleNavItems.map((item) => (
+              <Link
+                key={item.path}
+                to={item.path}
                 style={{
                   display: 'block',
                   background: 'none',
@@ -86,11 +167,11 @@ export default function Footer({ onNavigate }: FooterProps) {
                   fontFamily: "'Outfit', sans-serif",
                   transition: 'color 0.2s',
                 }}
-                onMouseEnter={(e) => ((e.currentTarget as HTMLButtonElement).style.color = '#f59e0b')}
-                onMouseLeave={(e) => ((e.currentTarget as HTMLButtonElement).style.color = 'rgba(244,244,245,0.45)')}
+                onMouseEnter={(e) => ((e.currentTarget).style.color = '#f59e0b')}
+                onMouseLeave={(e) => ((e.currentTarget).style.color = 'rgba(244,244,245,0.45)')}
               >
-                {p.charAt(0).toUpperCase() + p.slice(1)}
-              </button>
+                {item.label}
+              </Link>
             ))}
           </div>
 
@@ -99,8 +180,8 @@ export default function Footer({ onNavigate }: FooterProps) {
               CONNECT
             </p>
             {[
-              { label: 'GitHub', href: 'https://github.com' },
-              { label: 'Email', href: 'mailto:oh@weblab.dev' },
+              { label: 'GitHub', href: 'https://github.com/SeungHo5' },
+              { label: 'Email', href: 'mailto:osh4607@gmail.com' },
             ].map((link) => (
               <a
                 key={link.label}

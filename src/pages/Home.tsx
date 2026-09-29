@@ -1,197 +1,379 @@
 import { useState, useEffect, useRef } from 'react'
+// React Router의 Link를 사용하면
+// App.tsx에서 navigate 함수를 props로 전달하지 않아도
+// Home 컴포넌트가 직접 원하는 URL로 이동할 수 있다.
+//
+// 기존:
+// onClick={() => onNavigate('portfolio')}
+//
+// 변경:
+// <Link to="/portfolio">
+import { Link } from 'react-router-dom'
 import { useScrollReveal } from '../hooks/useScrollReveal'
 
-type Page = 'home' | 'portfolio' | 'blog' | 'troubleshooting' | 'study' | 'lab' | 'contact'
-
-interface HomeProps {
-  onNavigate: (page: Page) => void
-}
-
+// Home 화면에서 미리 보여줄 공개 페이지 정보.
+//
+// Blog / Study / Lab은 관리자 로그인 후에만 접근하도록 했기 때문에
+// 공개 Home에서는 Portfolio와 Troubleshooting만 보여준다.
+//
+// path
+// → React Router에서 이동할 실제 URL
+//
+// preview
+// → 오른쪽 Preview 영역에서 어떤 컴포넌트를 보여줄지 구분하는 값
 const SECTIONS = [
   {
     id: 'portfolio',
+    path: '/portfolio',
+
     num: '01',
+
     title: 'Portfolio',
-    subtitle: '경험 · 기술 · 프로젝트',
-    desc: '제가 해온 경험과 기술 스택, 그리고 직접 구축한 프로젝트들을 정리한 공간입니다.',
-    accent: 'Backend & Infrastructure Engineer로서의 여정을 기록합니다.',
-    tags: ['Java', 'Spring Boot', 'Docker', 'Linux', 'MySQL'],
-    preview: 'portfolio',
+
+    subtitle: '경험 · 운영 · 구축',
+
+    // 기존의 추상적인 설명 대신
+    // 실제 업무와 개인 인프라 경험이 있다는 것을 바로 알 수 있게 수정
+    desc:
+      '공공기관 시스템 전환과 WEB/WAS 운영, 그리고 개인 인프라 구축 과정에서 직접 경험한 업무와 프로젝트를 정리했습니다.',
+
+    accent:
+      '운영 환경에서 직접 확인하고 해결한 경험을 기록합니다.',
+
+    // 현재 실제 경험과 연결되는 기술 위주로 구성
+    tags: [
+      'Apache',
+      'WildFly',
+      'Linux',
+      'Oracle',
+      'Nginx',
+      'Docker',
+      'Jenkins',
+    ],
+
   },
-  {
-    id: 'blog',
-    num: '02',
-    title: 'Blog',
-    subtitle: '공부 · 기록 · 정리',
-    desc: '공부한 기술과 개념을 직접 정리하고 기록하는 기술 블로그입니다.',
-    accent: '배움을 기록하면 지식이 됩니다.',
-    tags: ['DevOps', 'Backend', 'Infrastructure', 'Study'],
-    preview: 'blog',
-  },
+
   {
     id: 'troubleshooting',
-    num: '03',
+    path: '/troubleshooting',
+
+    num: '02',
+
     title: 'Troubleshooting',
+
     subtitle: '장애 · 분석 · 해결',
-    desc: '실제 문제의 증상부터 원인 분석, 해결 과정까지 기록하는 Error 해결 데이터베이스입니다.',
-    accent: '문제를 해결하며 더 깊이 이해합니다.',
-    tags: ['Debug', 'Error Log', 'Root Cause', 'Solution'],
-    preview: 'troubleshooting',
-  },
-  {
-    id: 'lab',
-    num: '04',
-    title: 'Lab',
-    subtitle: '구축 · 실험 · 운영',
-    desc: 'Server, Linux, Docker, Kubernetes, Monitoring, AI 등을 직접 구축하고 실험하는 인프라 연구실입니다.',
-    accent: '실제로 구축해야 비로소 배웁니다.',
-    tags: ['Kubernetes', 'Jenkins', 'Grafana', 'Prometheus', 'Ollama'],
-    preview: 'lab',
+
+    desc:
+      '운영과 구축 과정에서 실제로 발생한 문제를 로그와 설정을 바탕으로 분석하고 해결한 과정을 정리했습니다.',
+
+    accent:
+      '증상만 처리하기보다 원인을 좁혀가는 과정을 중요하게 생각합니다.',
+
+    tags: [
+      'TLS',
+      'WildFly',
+      'Nginx',
+      'Linux',
+      'Log Analysis',
+      'Root Cause',
+    ],
+
   },
 ]
 
 function PreviewPortfolio() {
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-      <div style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: '12px', padding: '20px' }}>
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '12px' }}>
-          <div>
-            <div style={{ fontSize: '14px', fontWeight: 700, color: '#f4f4f5', marginBottom: '4px' }}>Home Server Setup</div>
-            <div style={{ fontSize: '12px', color: 'rgba(244,244,245,0.45)' }}>Proxmox + Docker Compose 기반 홈 서버 구축</div>
-          </div>
-          <div style={{ fontSize: '11px', color: '#f59e0b', background: 'rgba(245,158,11,0.12)', padding: '3px 8px', borderRadius: '4px', fontFamily: "'JetBrains Mono', monospace" }}>RUNNING</div>
-        </div>
-        <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap' }}>
-          {['Linux', 'Docker', 'Nginx'].map(t => (
-            <span key={t} style={{ fontSize: '10px', color: 'rgba(244,244,245,0.5)', background: 'rgba(255,255,255,0.06)', padding: '2px 8px', borderRadius: '4px', fontFamily: "'JetBrains Mono', monospace" }}>{t}</span>
-          ))}
-        </div>
-      </div>
-      <div style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: '12px', padding: '20px' }}>
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '12px' }}>
-          <div>
-            <div style={{ fontSize: '14px', fontWeight: 700, color: '#f4f4f5', marginBottom: '4px' }}>CI/CD Pipeline</div>
-            <div style={{ fontSize: '12px', color: 'rgba(244,244,245,0.45)' }}>Jenkins + GitHub Webhook 자동 배포 시스템</div>
-          </div>
-          <div style={{ fontSize: '11px', color: '#22c55e', background: 'rgba(34,197,94,0.12)', padding: '3px 8px', borderRadius: '4px', fontFamily: "'JetBrains Mono', monospace" }}>COMPLETE</div>
-        </div>
-        <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap' }}>
-          {['Jenkins', 'Docker', 'GitHub'].map(t => (
-            <span key={t} style={{ fontSize: '10px', color: 'rgba(244,244,245,0.5)', background: 'rgba(255,255,255,0.06)', padding: '2px 8px', borderRadius: '4px', fontFamily: "'JetBrains Mono', monospace" }}>{t}</span>
-          ))}
-        </div>
-      </div>
-    </div>
-  )
-}
+    <div
+      style={{
+        display: 'flex',
+        flexDirection: 'column',
+        gap: '12px',
+      }}
+    >
 
-function PreviewBlog() {
-  const posts = [
-    { title: 'Docker Compose로 개발 환경 구축하기', cat: 'DevOps', date: '2026.07.28' },
-    { title: 'Spring Boot JPA N+1 문제 해결', cat: 'Backend', date: '2026.07.15' },
-    { title: 'Nginx Reverse Proxy 완전 정복', cat: 'Infrastructure', date: '2026.07.02' },
-  ]
-  return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: '0' }}>
-      {posts.map((p, i) => (
-        <div key={i} style={{
-          padding: '16px 0',
-          borderBottom: '1px solid rgba(255,255,255,0.06)',
-          display: 'flex',
-          justifyContent: 'space-between',
-          alignItems: 'center',
-          gap: '16px',
-        }}>
+      {/* 실제 업무 경험 Preview */}
+      <div
+        style={{
+          background: 'rgba(255,255,255,0.04)',
+          border: '1px solid rgba(255,255,255,0.08)',
+          borderRadius: '12px',
+          padding: '20px',
+        }}
+      >
+        <div
+          style={{
+            display: 'flex',
+            justifyContent: 'space-between',
+            alignItems: 'flex-start',
+            marginBottom: '12px',
+            gap: '16px',
+          }}
+        >
           <div>
-            <div style={{ fontSize: '13.5px', fontWeight: 500, color: '#f4f4f5', marginBottom: '4px', lineHeight: 1.4 }}>{p.title}</div>
-            <span style={{ fontSize: '11px', color: '#f59e0b', background: 'rgba(245,158,11,0.1)', padding: '2px 7px', borderRadius: '4px', fontFamily: "'JetBrains Mono', monospace" }}>{p.cat}</span>
+            <div
+              style={{
+                fontSize: '14px',
+                fontWeight: 700,
+                color: '#f4f4f5',
+                marginBottom: '4px',
+              }}
+            >
+              Public System G-Cloud Migration
+            </div>
+
+            <div
+              style={{
+                fontSize: '12px',
+                color: 'rgba(244,244,245,0.45)',
+              }}
+            >
+              WEB/WAS 전환 · 운영 검증 · 장애 대응
+            </div>
           </div>
-          <div style={{ fontSize: '11px', color: 'rgba(244,244,245,0.3)', whiteSpace: 'nowrap', fontFamily: "'JetBrains Mono', monospace" }}>{p.date}</div>
+
+          {/* 단순 프로젝트가 아니라 실제 업무 경험임을 표시 */}
+          <div
+            style={{
+              fontSize: '11px',
+              color: '#22c55e',
+              background: 'rgba(34,197,94,0.12)',
+              padding: '3px 8px',
+              borderRadius: '4px',
+              fontFamily: "'JetBrains Mono', monospace",
+              whiteSpace: 'nowrap',
+            }}
+          >
+            EXPERIENCE
+          </div>
         </div>
-      ))}
+
+        <div
+          style={{
+            display: 'flex',
+            gap: '6px',
+            flexWrap: 'wrap',
+          }}
+        >
+          {['Apache', 'WildFly', 'Oracle', 'Linux'].map((tag) => (
+            <span
+              key={tag}
+              style={{
+                fontSize: '10px',
+                color: 'rgba(244,244,245,0.5)',
+                background: 'rgba(255,255,255,0.06)',
+                padding: '2px 8px',
+                borderRadius: '4px',
+                fontFamily: "'JetBrains Mono', monospace",
+              }}
+            >
+              {tag}
+            </span>
+          ))}
+        </div>
+      </div>
+
+
+      {/* 현재 진행 중인 개인 인프라 구축 Preview */}
+      <div
+        style={{
+          background: 'rgba(255,255,255,0.04)',
+          border: '1px solid rgba(255,255,255,0.08)',
+          borderRadius: '12px',
+          padding: '20px',
+        }}
+      >
+        <div
+          style={{
+            display: 'flex',
+            justifyContent: 'space-between',
+            alignItems: 'flex-start',
+            marginBottom: '12px',
+            gap: '16px',
+          }}
+        >
+          <div>
+            <div
+              style={{
+                fontSize: '14px',
+                fontWeight: 700,
+                color: '#f4f4f5',
+                marginBottom: '4px',
+              }}
+            >
+              Personal Infrastructure
+            </div>
+
+            <div
+              style={{
+                fontSize: '12px',
+                color: 'rgba(244,244,245,0.45)',
+              }}
+            >
+              Nginx · HTTPS · Jenkins · Docker 기반 개인 서비스 구축
+            </div>
+          </div>
+
+          {/* 아직 CI/CD 전체가 최종 완료된 상태가 아니므로
+              COMPLETE가 아니라 BUILDING으로 표시 */}
+          <div
+            style={{
+              fontSize: '11px',
+              color: '#f59e0b',
+              background: 'rgba(245,158,11,0.12)',
+              padding: '3px 8px',
+              borderRadius: '4px',
+              fontFamily: "'JetBrains Mono', monospace",
+              whiteSpace: 'nowrap',
+            }}
+          >
+            BUILDING
+          </div>
+        </div>
+
+        <div
+          style={{
+            display: 'flex',
+            gap: '6px',
+            flexWrap: 'wrap',
+          }}
+        >
+          {['Nginx', 'HTTPS', 'Jenkins', 'Docker'].map((tag) => (
+            <span
+              key={tag}
+              style={{
+                fontSize: '10px',
+                color: 'rgba(244,244,245,0.5)',
+                background: 'rgba(255,255,255,0.06)',
+                padding: '2px 8px',
+                borderRadius: '4px',
+                fontFamily: "'JetBrains Mono', monospace",
+              }}
+            >
+              {tag}
+            </span>
+          ))}
+        </div>
+      </div>
+
     </div>
   )
 }
 
 function PreviewTroubleshooting() {
-  return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-      {[
-        { status: 'SOLVED', title: 'WildFly WAR Deployment Failed', code: 'WFLYWS0047', tags: ['WildFly', 'Java'] },
-        { status: 'SOLVED', title: 'Jenkins Docker Build Permission', code: 'permission denied', tags: ['Jenkins', 'Docker'] },
-        { status: 'IN PROGRESS', title: 'K8s Pod CrashLoopBackOff', code: 'OOMKilled', tags: ['Kubernetes'] },
-      ].map((item, i) => (
-        <div key={i} style={{
-          background: 'rgba(255,255,255,0.03)',
-          border: '1px solid rgba(255,255,255,0.07)',
-          borderLeft: `2px solid ${item.status === 'SOLVED' ? '#22c55e' : item.status === 'IN PROGRESS' ? '#f59e0b' : '#ef4444'}`,
-          borderRadius: '8px',
-          padding: '14px 16px',
-        }}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '6px' }}>
-            <span style={{
-              fontSize: '10px', fontWeight: 700, letterSpacing: '0.08em',
-              color: item.status === 'SOLVED' ? '#22c55e' : '#f59e0b',
-              fontFamily: "'JetBrains Mono', monospace",
-            }}>
-              {item.status}
-            </span>
-          </div>
-          <div style={{ fontSize: '13px', fontWeight: 600, color: '#f4f4f5', marginBottom: '4px' }}>{item.title}</div>
-          <div style={{ fontSize: '11px', color: 'rgba(244,244,245,0.35)', fontFamily: "'JetBrains Mono', monospace" }}>{item.code}</div>
-        </div>
-      ))}
-    </div>
-  )
-}
 
-function PreviewLab() {
-  const experiments = [
-    { name: 'Grafana + Prometheus', status: 'RUNNING', tags: ['Monitoring'] },
-    { name: 'Kubernetes (k3s)', status: 'EXPERIMENTING', tags: ['K8s', 'Raspberry Pi'] },
-    { name: 'Local AI (Ollama)', status: 'RUNNING', tags: ['AI', 'GPU'] },
+  // 실제 운영/구축 과정에서 경험한 장애 사례를
+  // Home Preview에서 간단하게 보여주기 위한 데이터.
+  //
+  // 자세한 원인과 해결 과정은
+  // Troubleshooting 페이지에서 다룰 예정.
+  const issues = [
+    {
+      status: 'SOLVED',
+      title: 'TLS Handshake / CipherSuite',
+      code: 'Unsupported CipherSuite',
+    },
+    {
+      status: 'SOLVED',
+      title: 'WildFly Request Parsing Error',
+      code: 'UT000173 Invalid control character',
+    },
+    {
+      status: 'SOLVED',
+      title: 'Server Storage Exhaustion',
+      code: 'No space left on device',
+    },
   ]
+
+
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-      {experiments.map((e, i) => (
-        <div key={i} style={{
-          background: 'rgba(255,255,255,0.03)',
-          border: '1px solid rgba(255,255,255,0.07)',
-          borderRadius: '10px',
-          padding: '14px 16px',
-          display: 'flex',
-          justifyContent: 'space-between',
-          alignItems: 'center',
-        }}>
-          <div>
-            <div style={{ fontSize: '13px', fontWeight: 600, color: '#f4f4f5', marginBottom: '6px' }}>{e.name}</div>
-            <div style={{ display: 'flex', gap: '5px' }}>
-              {e.tags.map(t => (
-                <span key={t} style={{ fontSize: '10px', color: 'rgba(244,244,245,0.4)', background: 'rgba(255,255,255,0.05)', padding: '1px 6px', borderRadius: '3px', fontFamily: "'JetBrains Mono', monospace" }}>{t}</span>
-              ))}
-            </div>
+    <div
+      style={{
+        display: 'flex',
+        flexDirection: 'column',
+        gap: '12px',
+      }}
+    >
+
+      {/* issues 배열의 장애 사례를 하나씩 화면에 출력 */}
+      {issues.map((item) => (
+        <div
+          key={item.title}
+          style={{
+            background: 'rgba(255,255,255,0.03)',
+            border: '1px solid rgba(255,255,255,0.07)',
+            borderLeft: '2px solid #22c55e',
+            borderRadius: '8px',
+            padding: '14px 16px',
+          }}
+        >
+
+          {/* 해결 여부 */}
+          <div
+            style={{
+              fontSize: '10px',
+              fontWeight: 700,
+              letterSpacing: '0.08em',
+              color: '#22c55e',
+              fontFamily: "'JetBrains Mono', monospace",
+              marginBottom: '6px',
+            }}
+          >
+            {item.status}
           </div>
-          <div style={{
-            fontSize: '10px', fontWeight: 700, letterSpacing: '0.05em',
-            color: e.status === 'RUNNING' ? '#22c55e' : '#f59e0b',
-            fontFamily: "'JetBrains Mono', monospace",
-          }}>
-            {e.status}
+
+
+          {/* 장애 제목 */}
+          <div
+            style={{
+              fontSize: '13px',
+              fontWeight: 600,
+              color: '#f4f4f5',
+              marginBottom: '4px',
+            }}
+          >
+            {item.title}
           </div>
+
+
+          {/* 실제 로그 또는 핵심 에러 메시지 */}
+          <div
+            style={{
+              fontSize: '11px',
+              color: 'rgba(244,244,245,0.35)',
+              fontFamily: "'JetBrains Mono', monospace",
+            }}
+          >
+            {item.code}
+          </div>
+
         </div>
       ))}
+
     </div>
   )
 }
 
+// section.id 값에 따라 오른쪽에 표시할 Preview를 결정한다.
+//
+// 현재 SECTIONS에는 portfolio와 troubleshooting만 존재하지만,
+// 예상하지 못한 id가 들어왔을 때 무조건 Troubleshooting을 보여주지 않고
+// null을 반환하도록 명확하게 처리한다.
 function SectionPreview({ id }: { id: string }) {
-  if (id === 'portfolio') return <PreviewPortfolio />
-  if (id === 'blog') return <PreviewBlog />
-  if (id === 'troubleshooting') return <PreviewTroubleshooting />
-  return <PreviewLab />
+  if (id === 'portfolio') {
+    return <PreviewPortfolio />
+  }
+
+  if (id === 'troubleshooting') {
+    return <PreviewTroubleshooting />
+  }
+
+  return null
 }
 
-export default function Home({ onNavigate }: HomeProps) {
+
+// 기존에는 App.tsx에서 onNavigate를 props로 전달받았지만
+// React Router의 Link를 사용하므로 더 이상 props가 필요하지 않다.
+export default function Home() {
   const [scrollY, setScrollY] = useState(0)
   const [heroOpacity, setHeroOpacity] = useState(1)
   const heroRef = useRef<HTMLDivElement>(null)
@@ -207,11 +389,14 @@ export default function Home({ onNavigate }: HomeProps) {
     return () => window.removeEventListener('scroll', handler)
   }, [])
 
+  // 현재 Home에서 Scroll Reveal이 적용되는 SECTIONS는
+  // Portfolio와 Troubleshooting 총 2개이므로 Ref도 2개만 필요하다.
+  //
+  // Hook은 반복문 안에서 호출할 수 없기 때문에
+  // 각각 호출한 뒤 배열로 묶어 section의 idx와 연결한다.
   const revealRef0 = useScrollReveal()
   const revealRef1 = useScrollReveal()
-  const revealRef2 = useScrollReveal()
-  const revealRef3 = useScrollReveal()
-  const revealRefs = [revealRef0, revealRef1, revealRef2, revealRef3]
+  const revealRefs = [revealRef0, revealRef1,]
 
   return (
     <div style={{ background: '#09090b' }}>
@@ -291,7 +476,7 @@ export default function Home({ onNavigate }: HomeProps) {
           <h1
             style={{
               fontFamily: "'Outfit', 'Noto Sans KR', sans-serif",
-              fontSize: 'clamp(40px, 7vw, 88px)',
+              fontSize: 'clamp(39px, 7vw, 88px)',
               fontWeight: 900,
               lineHeight: 1.1,
               color: '#f4f4f5',
@@ -333,8 +518,8 @@ export default function Home({ onNavigate }: HomeProps) {
 
           {/* CTAs */}
           <div style={{ display: 'flex', gap: '14px', justifyContent: 'center', flexWrap: 'wrap' }}>
-            <button
-              onClick={() => onNavigate('portfolio')}
+            <Link
+              to="/portfolio"
               style={{
                 padding: '14px 32px',
                 background: '#f59e0b',
@@ -350,22 +535,26 @@ export default function Home({ onNavigate }: HomeProps) {
                 display: 'flex',
                 alignItems: 'center',
                 gap: '8px',
+                // Link는 기본적으로 <a> 태그처럼 동작하므로
+                // 기본 밑줄을 제거해서 기존 버튼 디자인을 유지한다.
+                justifyContent: 'center',
+                textDecoration: 'none',
               }}
               onMouseEnter={(e) => {
-                const b = e.currentTarget as HTMLButtonElement
-                b.style.background = '#fbbf24'
-                b.style.transform = 'translateY(-2px)'
+                e.currentTarget.style.background = '#fbbf24'
+                e.currentTarget.style.transform = 'translateY(-2px)'
               }}
               onMouseLeave={(e) => {
-                const b = e.currentTarget as HTMLButtonElement
-                b.style.background = '#f59e0b'
-                b.style.transform = 'translateY(0)'
+                e.currentTarget.style.background = '#f59e0b'
+                e.currentTarget.style.transform = 'translateY(0)'
               }}
             >
               <span>📁</span> Portfolio 보기
-            </button>
-            <button
-              onClick={() => onNavigate('blog')}
+            </Link>
+            {/* Blog는 로그인 후 Navbar에서 접근하도록 하고,
+              공개 Home의 두 번째 CTA는 Troubleshooting으로 변경 */}
+            <Link
+              to="/troubleshooting"
               style={{
                 padding: '14px 32px',
                 background: 'transparent',
@@ -380,20 +569,26 @@ export default function Home({ onNavigate }: HomeProps) {
                 display: 'flex',
                 alignItems: 'center',
                 gap: '8px',
+                textDecoration: 'none',
               }}
               onMouseEnter={(e) => {
-                const b = e.currentTarget as HTMLButtonElement
-                b.style.borderColor = 'rgba(244,244,245,0.55)'
-                b.style.transform = 'translateY(-2px)'
+                e.currentTarget.style.borderColor =
+                  'rgba(244,244,245,0.55)'
+
+                e.currentTarget.style.transform =
+                  'translateY(-2px)'
               }}
               onMouseLeave={(e) => {
-                const b = e.currentTarget as HTMLButtonElement
-                b.style.borderColor = 'rgba(244,244,245,0.25)'
-                b.style.transform = 'translateY(0)'
+                e.currentTarget.style.borderColor =
+                  'rgba(244,244,245,0.25)'
+
+                e.currentTarget.style.transform =
+                  'translateY(0)'
               }}
             >
-              <span>📝</span> Blog 보기
-            </button>
+              <span>🔧</span> Troubleshooting 보기
+
+            </Link>
           </div>
         </div>
 
@@ -583,8 +778,8 @@ export default function Home({ onNavigate }: HomeProps) {
                   ))}
                 </div>
 
-                <button
-                  onClick={() => onNavigate(section.id as Page)}
+                <Link
+                  to={section.path}
                   style={{
                     padding: '12px 28px',
                     background: 'transparent',
@@ -599,20 +794,25 @@ export default function Home({ onNavigate }: HomeProps) {
                     display: 'inline-flex',
                     alignItems: 'center',
                     gap: '8px',
+                    textDecoration: 'none',
                   }}
                   onMouseEnter={(e) => {
-                    const b = e.currentTarget as HTMLButtonElement
-                    b.style.background = 'rgba(245,158,11,0.1)'
-                    b.style.borderColor = '#f59e0b'
+                    e.currentTarget.style.background =
+                      'rgba(245,158,11,0.1)'
+
+                    e.currentTarget.style.borderColor =
+                      '#f59e0b'
                   }}
                   onMouseLeave={(e) => {
-                    const b = e.currentTarget as HTMLButtonElement
-                    b.style.background = 'transparent'
-                    b.style.borderColor = 'rgba(245,158,11,0.4)'
+                    e.currentTarget.style.background =
+                      'transparent'
+
+                    e.currentTarget.style.borderColor =
+                      'rgba(245,158,11,0.4)'
                   }}
                 >
                   {section.title} 보기 →
-                </button>
+                </Link>
               </div>
 
               {/* Preview side */}
@@ -656,7 +856,7 @@ export default function Home({ onNavigate }: HomeProps) {
                         fontFamily: "'JetBrains Mono', monospace",
                       }}
                     >
-                      weblab.dev/{section.id}
+                      seungho.cloud{section.path}
                     </div>
                   </div>
                   <SectionPreview id={section.id} />
@@ -704,8 +904,8 @@ export default function Home({ onNavigate }: HomeProps) {
           <p style={{ fontSize: '15px', color: 'rgba(244,244,245,0.5)', marginBottom: '40px', lineHeight: 1.7 }}>
             프로젝트 협업, 기술 질문, 또는 그냥 안녕이라도 — 언제든 환영합니다.
           </p>
-          <button
-            onClick={() => onNavigate('contact')}
+          <Link
+            to="/contact"
             style={{
               padding: '16px 40px',
               background: '#f59e0b',
@@ -717,20 +917,28 @@ export default function Home({ onNavigate }: HomeProps) {
               cursor: 'pointer',
               fontFamily: "'Outfit', sans-serif",
               transition: 'background 0.2s, transform 0.2s',
+              // Link는 실제로 <a> 태그로 렌더링되므로
+              // 브라우저의 기본 밑줄을 제거하고 기존 버튼 형태를 유지한다.
+              textDecoration: 'none',
+
+              // Link가 버튼처럼 내부 글자를 정렬할 수 있도록 설정
+              display: 'inline-flex',
+              alignItems: 'center',
+              justifyContent: 'center',
             }}
             onMouseEnter={(e) => {
-              const b = e.currentTarget as HTMLButtonElement
+              const b = e.currentTarget
               b.style.background = '#fbbf24'
               b.style.transform = 'translateY(-2px)'
             }}
             onMouseLeave={(e) => {
-              const b = e.currentTarget as HTMLButtonElement
+              const b = e.currentTarget
               b.style.background = '#f59e0b'
               b.style.transform = 'translateY(0)'
             }}
           >
             Contact 페이지로 →
-          </button>
+          </Link>
         </div>
       </section>
     </div>
