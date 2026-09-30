@@ -403,7 +403,13 @@ export default function Home() {
       {/* ── Hero ─────────────────────────────────────────── */}
       <section
         ref={heroRef}
-        style={{ position: 'relative', height: '100vh', overflow: 'hidden', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+        style={{ position: 'relative',
+          minHeight: '100svh',
+          overflow: 'hidden', 
+          display: 'flex', 
+          alignItems: 'center', 
+          justifyContent: 'center'
+        }}
       >
         {/* Parallax background */}
         <div
@@ -441,11 +447,12 @@ export default function Home() {
 
         {/* Hero content */}
         <div
+          className="Home-hero-content"
           style={{
             position: 'relative',
             zIndex: 1,
             textAlign: 'center',
-            padding: '0 24px',
+            width: '100%',
             maxWidth: '960px',
             opacity: heroOpacity,
             transform: `translateY(${scrollY * 0.12}px)`,
@@ -476,7 +483,7 @@ export default function Home() {
           <h1
             style={{
               fontFamily: "'Outfit', 'Noto Sans KR', sans-serif",
-              fontSize: 'clamp(39px, 7vw, 88px)',
+              fontSize: 'clamp(34px, 7vw, 88px)',
               fontWeight: 900,
               lineHeight: 1.1,
               color: '#f4f4f5',
@@ -701,7 +708,7 @@ export default function Home() {
               className="scroll-reveal"
               style={{
                 display: 'grid',
-                gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))',
+                gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 300px), 1fr))',
                 gap: 'clamp(40px, 6vw, 100px)',
                 alignItems: 'center',
                 direction: isEven ? 'ltr' : 'rtl',

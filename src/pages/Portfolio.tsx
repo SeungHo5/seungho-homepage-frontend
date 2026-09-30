@@ -54,6 +54,7 @@ export default function Portfolio() {
     <div style={{ background: '#09090b', minHeight: '100vh', paddingTop: '64px' }}>
       {/* Header */}
       <div
+        className="portfolio-header"
         style={{
           borderBottom: '1px solid rgba(255,255,255,0.06)',
           padding: '60px 24px 0',
@@ -78,7 +79,7 @@ export default function Portfolio() {
           </h1>
 
           {/* Tabs */}
-          <div style={{ display: 'flex', gap: '0', borderBottom: '1px solid rgba(255,255,255,0.06)' }}>
+          <div className="portfolio-tabs" style={{ display: 'flex', gap: '0', borderBottom: '1px solid rgba(255,255,255,0.06)' }}>
             {(['about', 'experience', 'skills', 'projects'] as const).map((tab) => (
               <button
                 key={tab}
@@ -89,6 +90,7 @@ export default function Portfolio() {
                   borderBottom: activeTab === tab ? '2px solid #f59e0b' : '2px solid transparent',
                   cursor: 'pointer',
                   padding: '14px 24px',
+                  flexShrink: 0,
                   fontFamily: "'Outfit', sans-serif",
                   fontSize: '14px',
                   fontWeight: activeTab === tab ? 700 : 400,
@@ -105,7 +107,11 @@ export default function Portfolio() {
         </div>
       </div>
 
-      <div style={{ maxWidth: '1280px', margin: '0 auto', padding: '48px 24px 80px' }}>
+      <div className="portfolio-content" 
+      style={{ maxWidth: '1280px', 
+        margin: '0 auto'
+        }}
+        >
         {/* About */}
         {activeTab === 'about' && (
           <div style={{ maxWidth: '720px' }}>
@@ -141,7 +147,7 @@ export default function Portfolio() {
               </div>
             </div>
 
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '16px' }}>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 280px), 1fr))', gap: '16px' }}>
               {[
                 { label: 'Focus', value: 'Backend & Infra' },
                 { label: 'Location', value: 'Seoul, Korea' },
@@ -217,7 +223,7 @@ export default function Portfolio() {
         {/* Skills */}
         {activeTab === 'skills' && (
           <div ref={skillsRef} className="scroll-reveal">
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '20px' }}>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 280px), 1fr))', gap: '20px' }}>
               {SKILLS.map((group) => (
                 <div
                   key={group.cat}
@@ -257,7 +263,7 @@ export default function Portfolio() {
         {/* Projects */}
         {activeTab === 'projects' && (
           <div ref={projectsRef} className="scroll-reveal">
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(340px, 1fr))', gap: '24px' }}>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 280px), 1fr))', gap: '24px' }}>
               {PROJECTS.map((proj) => (
                 <div
                   key={proj.title}

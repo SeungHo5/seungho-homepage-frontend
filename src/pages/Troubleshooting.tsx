@@ -232,13 +232,20 @@ export default function Troubleshooting() {
   return (
     <div style={{ background: '#09090b', minHeight: '100vh', paddingTop: '64px' }}>
       {/* Header */}
-      <div style={{ borderBottom: '1px solid rgba(255,255,255,0.06)', padding: '60px 24px 48px' }}>
-        <div style={{ maxWidth: '1280px', margin: '0 auto' }}>
+      <div 
+      className = "troubleshooting-Header"
+      style={{
+        borderBottom: '1px solid rgba(255,255,255,0.06)'        
+      }}
+      >
+        <div 
+        className = "troubleshooting-Content"
+        style={{ maxWidth: '1280px', margin: '0 auto' }}>
           <p style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '11px', color: '#f59e0b', letterSpacing: '0.15em', marginBottom: '16px' }}>
             03 / TROUBLESHOOTING
           </p>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', flexWrap: 'wrap', gap: '20px', marginBottom: '12px' }}>
-            <h1 style={{ fontFamily: "'Outfit', sans-serif", fontSize: 'clamp(36px, 5vw, 64px)', fontWeight: 900, color: '#f4f4f5', letterSpacing: '-0.03em', margin: 0 }}>
+            <h1 style={{ fontFamily: "'Outfit', sans-serif", fontSize: 'clamp(30px, 5vw, 64px)', fontWeight: 900, color: '#f4f4f5', letterSpacing: '-0.03em', margin: 0 }}>
               Troubleshooting
             </h1>
             {isAdmin && <button
@@ -381,7 +388,7 @@ export default function Troubleshooting() {
 
                 {isExpanded && (
                   <div style={{ borderTop: '1px solid rgba(255,255,255,0.06)', padding: '24px', background: 'rgba(0,0,0,0.2)' }}>
-                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '12px', marginBottom: '20px' }}>
+                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 220px), 1fr))', gap: '12px', marginBottom: '20px' }}>
                       {[
                         { label: '01 PROBLEM', val: c.problem },
                         { label: '02 ENVIRONMENT', val: c.env },

@@ -88,10 +88,10 @@ export default function Footer() {
 
   return (
     <footer
+      className = 'site-Footer'
       style={{
         borderTop: '1px solid rgba(255,255,255,0.06)',
         background: '#09090b',
-        padding: '48px 24px',
       }}
     >
       <div style={{ maxWidth: '1280px', margin: '0 auto' }}>

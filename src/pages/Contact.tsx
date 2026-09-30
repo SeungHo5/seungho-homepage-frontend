@@ -1,7 +1,9 @@
 export default function Contact() {
   return (
     <div style={{ background: '#09090b', minHeight: '100vh', paddingTop: '64px', display: 'flex', flexDirection: 'column' }}>
-      <div style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '60px 24px' }}>
+      <div 
+        className = "contact-Content"
+        style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
         <div style={{ maxWidth: '680px', width: '100%', textAlign: 'center' }}>
           {/* Tag */}
           <div style={{
@@ -73,9 +75,11 @@ export default function Contact() {
                   background: 'rgba(255,255,255,0.03)',
                   border: '1px solid rgba(255,255,255,0.08)',
                   borderRadius: '14px',
-                  padding: '20px 28px',
+                  padding: '20px',
                   textDecoration: 'none',
-                  minWidth: '240px',
+                  width: '100%',
+                  maxWidth: '300px',
+                  minWidth: 0,
                   transition: 'border-color 0.2s, transform 0.2s, background 0.2s',
                 }}
                 onMouseEnter={(e) => {
@@ -92,11 +96,13 @@ export default function Contact() {
                 }}
               >
                 <span style={{ fontSize: '28px' }}>{link.icon}</span>
-                <div style={{ textAlign: 'left' }}>
+                <div style={{ textAlign: 'left', minWidth: 0 }}>
                   <div style={{ fontSize: '11px', color: 'rgba(244,244,245,0.35)', fontFamily: "'JetBrains Mono', monospace", marginBottom: '4px', letterSpacing: '0.08em' }}>
                     {link.label.toUpperCase()}
                   </div>
-                  <div style={{ fontSize: '14px', fontWeight: 600, color: link.color, fontFamily: "'JetBrains Mono', monospace" }}>
+                  <div style={{ fontSize: '14px', fontWeight: 600, color: link.color, fontFamily: "'JetBrains Mono', monospace",
+                    overflowWrap: 'anywhere',
+                   }}>
                     {link.value}
                   </div>
                 </div>

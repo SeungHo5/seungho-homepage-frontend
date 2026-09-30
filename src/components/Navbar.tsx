@@ -144,10 +144,10 @@ export default function Navbar() {
         }}
       >
         <div
+        className="navbar-inner"
           style={{
             maxWidth: '1280px',
             margin: '0 auto',
-            padding: '0 24px',
             height: '64px',
             display: 'flex',
             alignItems: 'center',
@@ -306,7 +306,14 @@ export default function Navbar() {
 
         {/* Mobile menu */}
         {menuOpen && (
-          <div style={{ background: 'rgba(9,9,11,0.97)', borderTop: '1px solid rgba(255,255,255,0.06)', padding: '16px 24px 24px', display: 'flex', flexDirection: 'column', gap: '4px' }}>
+          <div className="mobile-menu" 
+            style={{ background: 'rgba(9,9,11,0.97)',
+            borderTop: '1px solid rgba(255,255,255,0.06)', 
+            display: 'flex', 
+            flexDirection: 'column', 
+            gap: '4px'
+            }}
+          >
             {visibleNavItems.map((item) => {
               const active = location.pathname === item.path
               return (

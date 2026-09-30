@@ -11,12 +11,57 @@
 html {
   scroll-behavior: smooth;
 }
+/*
+  모든 요소의 width 계산에 padding과 border를 포함한다.
+
+  예:
+  width: 300px;
+  padding: 20px;
+
+  content-box라면 실제 크기:
+  340px
+
+  border-box라면 실제 크기:
+  300px
+
+  모바일에서는 padding 때문에 화면을 넘어가는 상황을
+  예방하기 위해 border-box를 사용하는 것이 안전하다.
+*/
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html,
+body,
+#root {
+  width: 100%;
+  min-width: 0;
+}
 
 body {
+  margin: 0;
   background-color: #09090b;
   color: #f4f4f5;
   font-family: 'Outfit', 'Noto Sans KR', sans-serif;
   -webkit-font-smoothing: antialiased;
+    /*
+    특정 자식 요소가 실수로 화면보다 커지더라도
+    페이지 전체에 가로 스크롤이 생기는 것을 방지한다.
+
+    단, 이걸 넣었다고 내부 요소의 크기 문제를
+    무시하면 안 된다.
+  */
+  overflow-x: hidden;
+}
+img,
+video {
+  /*
+    이미지가 원본 크기 때문에 부모 영역을 넘어가지 않도록 한다.
+  */
+  max-width: 100%;
+  height: auto;
 }
 
 * {
@@ -76,4 +121,118 @@ body {
   transform: translateY(-4px);
   border-color: rgba(245, 158, 11, 0.25) !important;
   box-shadow: 0 16px 48px rgba(0, 0, 0, 0.4);
+}
+
+/*
+  기본 크기 = PC/태블릿
+*/
+.navbar-inner {
+  padding: 0 24px;
+}
+
+.mobile-menu {
+  padding: 16px 24px 24px;
+}
+
+/*
+  768px 이하의 모바일 화면에서만 적용
+*/
+
+@media (max-width: 767px) {
+  .navbar-inner {
+    padding: 0 16px;
+  }
+  .mobile-menu {
+    padding: 16px 16px 24px;
+  }
+}
+
+.home-hero-content {
+  padding: 0 24px;
+}
+
+@media (max-width: 767px) {
+  .home-hero-content {
+    padding: 0 16px;
+  }
+}
+
+.portfolio-header {
+  padding: 60px 24px 0;
+}
+
+@media (max-width: 767px) {
+  .portfolio-header {
+    padding: 40px 16px 0;
+  }
+}
+
+.portfolio-tabs {
+  /* 
+    화면보다 탭 전체가 넓으면
+    페이지가 커지는 것이 아니라 탭 영역만 좌우 스크롤된다.
+    */
+  overflow-x: auto;
+
+  -web-kit-overflow-scrolling: touch;
+
+  scrollbar-width: none; /* Firefox */
+}
+.portfolio-tabs::-webkit-scrollbar {
+  display: none; /* Chrome, Safari, Opera */
+}
+
+@media (max-width: 767px) {
+  .portfolio-tabs button{
+    padding-left: 16px !important;
+    padding-right: 16px !important;
+    font-size: 13px !important;
+  }
+}
+
+.portfolio-content {
+  padding: 48px 24px 80px;
+}
+
+@media (max-width: 767px) {
+  .portfolio-content {
+    padding: 32px 16px 64px;
+  }
+}
+
+.troubleshooting-Header {
+  padding: 60px 24px 48px;
+}
+
+.troubleshooting-Content {
+  padding: 32px 24px 80px;
+}
+
+@media (max-width: 767px) {
+  .troubleshooting-Header {
+    padding: 40px 16px 32px;
+  }
+  .troubleshooting-Content {
+    padding: 24px 16px 64px;
+  }
+}
+
+.contact-Content {
+  padding: 60px 24px;
+}
+
+@media (max-width: 767px) {
+  .contact-Content {
+    padding: 40px 16px;
+  }
+}
+
+.site-Footer {
+  padding: 48px 24px;
+}
+
+@media (max-width: 767px) {
+  .site-Footer {
+    padding: 40px 16px;
+  }
 }
