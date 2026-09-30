@@ -25,98 +25,169 @@ interface Case {
 const INITIAL_CASES: Case[] = [
   {
     id: 'ts1',
+
     status: 'SOLVED',
-    title: 'WildFly WAR Deployment Failed',
-    errorCode: 'WFLYWS0047',
-    errorMsg: 'Duplicate URL Pattern in web.xml',
-    env: 'WildFly 27, Java 11, CentOS 7',
-    tags: ['WildFly', 'Java', 'WebService', 'Deployment'],
-    date: '2026.07.20',
-    difficulty: 'MEDIUM',
-    problem: 'WAR 배포 후 WildFly 서버에서 WFLYWS0047 에러와 함께 배포 실패.',
-    investigation: 'standalone/log/server.log 에서 Duplicate URL Pattern 확인. web.xml 내 /webservice 경로 중복 발견.',
-    cause: 'web.xml에 동일한 url-pattern이 두 개 선언되어 있었음. 리팩토링 과정에서 복붙 실수.',
-    solution: 'web.xml에서 중복된 <servlet-mapping> 블록 제거 후 mvn package → WildFly 재배포 성공.',
-    comments: [{ id: 2, author: '이서버', content: '저도 똑같은 문제 있었는데 이렇게 해결했군요. 감사합니다!', date: '2026-07-21T09:14:00Z' }],
+
+    title: '실서버 전환 직후 OpenAPI 연계 장애',
+
+    // 정확한 에러코드를 기억하지 못한다면
+    // 억지로 만들어 넣지 않고 장애 유형을 적는다.
+    errorCode: 'OpenAPI Error',
+
+    errorMsg: '운영 전환 직후 OpenAPI 연계 요청 실패',
+
+    env: '공공기관 우편 시스템 · G-Cloud 운영 환경',
+
+    tags: [
+      'OpenAPI',
+      'Production',
+      'Properties',
+      'Log Analysis',
+      'Troubleshooting',
+    ],
+
+    // 정확한 날짜를 기억하면 나중에 변경
+    date: '2026.07',
+
+    difficulty: 'HIGH',
+
+    problem:
+      'G-Cloud 실서버 전환 직후 운영 환경에서 OpenAPI 연계가 정상적으로 동작하지 않는 장애가 발생했습니다.',
+
+    investigation:
+      '운영 서버 로그를 확인하며 WEB/WAS와 애플리케이션, 연계 구간을 순차적으로 점검했습니다. 로그를 기준으로 원인 범위를 좁힌 결과 서버 자체 문제가 아니라 애플리케이션 properties 설정과 관련된 문제임을 확인했습니다.',
+
+    cause:
+      '운영 환경에 적용된 properties 설정값이 실제 연계 환경과 맞지 않아 OpenAPI 요청이 정상 처리되지 않았습니다.',
+
+    solution:
+      '문제가 된 properties 설정을 확인·수정한 뒤 서비스를 재확인했고 OpenAPI 연계가 정상적으로 동작하는 것을 확인했습니다.',
+
+    comments: [],
   },
   {
     id: 'ts2',
+
     status: 'SOLVED',
-    title: 'Jenkins Pipeline Docker Build Permission Denied',
-    errorCode: 'permission denied',
-    errorMsg: '/var/run/docker.sock: connect: permission denied',
-    env: 'Jenkins 2.440, Docker 25.0, Ubuntu 22.04',
-    tags: ['Jenkins', 'Docker', 'Permission', 'CI/CD'],
-    date: '2026.07.08',
-    difficulty: 'LOW',
-    problem: 'Jenkins Pipeline에서 docker build 실행 시 permission denied 에러 발생.',
-    investigation: 'jenkins 유저가 docker 그룹에 속해 있지 않음 확인. id jenkins 명령으로 groups 확인.',
-    cause: 'Jenkins 설치 후 docker 그룹에 jenkins 유저를 추가하지 않았음.',
-    solution: 'sudo usermod -aG docker jenkins && sudo systemctl restart jenkins. 이후 빌드 성공.',
+
+    title: '알뜰폰 연계 SSLHandshake 오류',
+
+    errorCode: 'SSLHandshakeException',
+
+    errorMsg:
+      'TLS Handshake Failed / Cipher Suite mismatch',
+
+    env:
+      'Java · TLS 1.2 · 외부 알뜰폰 연계',
+
+    tags: [
+      'TLS 1.2',
+      'SSL',
+      'Cipher Suite',
+      'OpenSSL',
+      'External API',
+    ],
+
+    // 정확한 날짜를 기억하면 나중에 변경
+    date: '2026.07',
+
+    difficulty: 'HIGH',
+
+    problem:
+      '외부 알뜰폰 시스템과 연계하는 과정에서 SSL Handshake 오류가 발생했습니다. 다른 외부 연계들은 정상적으로 통신하고 있었지만 특정 알뜰폰 연계에서만 TLS 연결이 정상적으로 성립하지 않았습니다.',
+
+    investigation:
+      '정상적으로 통신하는 다른 연계들과 해당 알뜰폰 연계의 TLS 설정을 비교했습니다. TLS 버전과 인증서뿐 아니라 Cipher Suite까지 확인하기 위해 OpenSSL과 curl 등을 이용해 서버가 지원하는 암호화 방식을 점검했습니다. 여러 연계가 동일한 Cipher Suite를 사용하고 있는 것과 달리 해당 연계만 다른 Cipher Suite를 사용하고 있다는 차이를 확인했습니다.',
+
+    cause:
+      '알뜰폰 연계 서버에서 사용하는 Cipher Suite가 다른 연계 시스템과 달랐고, Java 애플리케이션에서 사용 가능한 Cipher Suite와 일치하지 않아 TLS Handshake가 실패했습니다.',
+
+    solution:
+      '연계 서버에서 지원하는 Cipher Suite를 확인한 뒤 TLS 1.2 환경에서 ECDHE-RSA-AES256-GCM-SHA384를 사용할 수 있도록 설정을 조정했습니다. 이후 OpenSSL과 curl을 이용해 TLS 연결을 다시 확인하고 실제 연계 요청이 정상 처리되는 것을 검증했습니다.',
+
     comments: [],
   },
   {
     id: 'ts3',
+
     status: 'SOLVED',
-    title: 'Spring Boot Hikari Connection Pool Timeout',
-    errorCode: 'HikariPool-1',
-    errorMsg: 'Connection is not available, request timed out after 30000ms',
-    env: 'Spring Boot 3.1, MySQL 8.0, Docker Compose',
-    tags: ['Spring Boot', 'MySQL', 'HikariCP', 'Connection Pool'],
-    date: '2026.06.25',
-    difficulty: 'MEDIUM',
-    problem: 'Docker Compose로 Spring Boot 앱 기동 시 MySQL 연결 타임아웃 발생.',
-    investigation: 'MySQL 컨테이너가 healthy 상태가 되기 전에 Spring 앱이 먼저 실행되어 연결 시도. healthcheck 미설정 확인.',
-    cause: 'docker-compose.yml에 MySQL healthcheck 및 depends_on condition 미설정.',
-    solution: 'docker-compose.yml에 healthcheck 추가, depends_on에 condition: service_healthy 적용.',
+
+    title: '간편인증 · 안면인증 KMC 전환 오류',
+
+    // 실제 오류 로그를 나중에 찾으면 교체
+    errorCode: 'KMC Integration Issue',
+
+    errorMsg:
+      '인증 모듈 전환 후 간편인증 및 안면인증 연계 오류',
+
+    env:
+      'Java 1.6 → Java 1.8 · Dream Security → KMC',
+
+    tags: [
+      'KMC',
+      'Dream Security',
+      'Java',
+      'Authentication',
+      'API Integration',
+    ],
+
+    date: '2026.07',
+
+    difficulty: 'HIGH',
+
+    problem:
+      '기존 Dream Security 기반으로 동작하던 간편인증 및 안면인증 기능을 KMC 기반 인증 방식으로 전환하는 과정에서 인증 연계가 정상적으로 동작하지 않는 문제가 발생했습니다.',
+
+    investigation:
+      '기존 인증 모듈과 신규 KMC 연계 구조를 비교하고 Java 실행 환경, 인증 관련 라이브러리, 설정값 및 외부 연계 구간을 순차적으로 확인했습니다. 기존 Java 1.6 환경에서 사용하던 인증 방식을 Java 1.8 환경으로 전환하면서 변경된 부분을 중심으로 로그와 설정을 점검했습니다.',
+
+    cause:
+      '기존 Dream Security 인증 환경과 신규 KMC 인증 환경의 구성 및 Java 실행 환경 차이로 인해 기존 설정과 연계 방식 일부를 그대로 사용할 수 없었습니다.',
+
+    solution:
+      'Java 환경을 1.6에서 1.8로 전환하고 KMC 연계에 필요한 라이브러리와 설정을 적용했습니다. 이후 간편인증과 안면인증 각각의 요청 흐름을 확인하며 외부 연계 및 인증 결과를 검증해 정상 동작을 확인했습니다.',
+
     comments: [],
   },
   {
     id: 'ts4',
-    status: 'IN PROGRESS',
-    title: 'Kubernetes Pod CrashLoopBackOff',
-    errorCode: 'OOMKilled',
-    errorMsg: 'Pod OOMKilled — container exceeded memory limit',
-    env: 'k3s 1.28, Raspberry Pi 4 (4GB), Helm 3.12',
-    tags: ['Kubernetes', 'k3s', 'OOM', 'Memory'],
-    date: '2026.07.29',
-    difficulty: 'HIGH',
-    problem: 'k3s 클러스터에서 Spring Boot Pod가 OOMKilled로 CrashLoopBackOff 반복.',
-    investigation: 'kubectl top pod 및 describe pod으로 메모리 사용량 확인. limits: memory: 256Mi로 설정되어 있으나 Spring JVM 기본 Heap이 512MB 이상 요구.',
-    cause: '메모리 limit이 JVM 기본 heap 크기보다 작음. JVM 옵션 미조정.',
-    solution: '',
-    comments: [],
-  },
-  {
-    id: 'ts5',
+
     status: 'SOLVED',
-    title: 'Nginx 502 Bad Gateway After Docker Restart',
-    errorCode: '502 Bad Gateway',
-    errorMsg: 'connect() failed (111: Connection refused) while connecting to upstream',
-    env: 'Nginx 1.24, Docker Compose, Ubuntu 22.04',
-    tags: ['Nginx', 'Docker', 'Proxy', 'Network'],
-    date: '2026.06.14',
-    difficulty: 'LOW',
-    problem: 'Docker Compose 재시작 후 Nginx가 502 에러 반환.',
-    investigation: 'upstream으로 지정된 컨테이너명이 Docker 재시작 후 IP가 변경되었으나 Nginx가 캐싱된 DNS로 연결 시도.',
-    cause: 'Docker 재시작 시 컨테이너 IP 변경. Nginx upstream에 IP 대신 컨테이너명 사용 필요.',
-    solution: 'nginx.conf의 upstream을 컨테이너명(spring-app:8080)으로 변경. Docker 내부 DNS 활용.',
-    comments: [],
-  },
-  {
-    id: 'ts6',
-    status: 'INVESTIGATING',
-    title: 'Grafana Dashboard Data Gap',
-    errorCode: 'No data',
-    errorMsg: 'Prometheus scrape target down after network reconfiguration',
-    env: 'Grafana 10.2, Prometheus 2.47, Node Exporter',
-    tags: ['Grafana', 'Prometheus', 'Monitoring'],
-    date: '2026.07.31',
+
+    title: '한글 Cookie 값으로 인한 WildFly 요청 처리 오류',
+
+    errorCode: 'UT000173',
+
+    errorMsg:
+      'An invalid control character was present in the cookie value or attribute',
+
+    env:
+      'Java · JSP/Servlet · WildFly · Undertow',
+
+    tags: [
+      'WildFly',
+      'Undertow',
+      'Cookie',
+      'HTTP',
+      'Encoding',
+    ],
+
+    date: '2026.07',
+
     difficulty: 'MEDIUM',
-    problem: '네트워크 재설정 후 Grafana 대시보드에 일부 지표가 "No data" 표시.',
-    investigation: 'Prometheus Targets 페이지에서 해당 Node Exporter가 DOWN 상태. 네트워크 서브넷 변경으로 prometheus.yml의 targets IP가 잘못된 것으로 추정.',
-    cause: '',
-    solution: '',
+
+    problem:
+      '인증 관련 요청 처리 과정에서 WildFly/Undertow가 Cookie를 응답에 추가하는 단계에서 UT000173 오류를 발생시키며 이후 요청 흐름이 정상적으로 진행되지 않는 문제가 발생했습니다.',
+
+    investigation:
+      'Undertow 로그에서 Invalid control character 오류를 확인하고 Cookie 생성 부분을 추적했습니다. new Cookie()에 전달되는 값을 확인한 결과 Cookie 값에 한글이 그대로 포함되어 있었으며, 로그에 출력된 문자 코드 [50724]가 실제 한글 문자 "오"의 유니코드 값과 일치하는 것을 확인했습니다. 이후 response.addCookie() 단계에서 예외가 발생하면서 다음 처리 로직까지 진행되지 않는 흐름으로 원인을 좁혔습니다.',
+
+    cause:
+      'HTTP Cookie 값에 한글 문자열을 인코딩하지 않은 상태로 직접 저장하면서 Undertow의 Cookie 유효성 검사를 통과하지 못했습니다.',
+
+    solution:
+      'Cookie에 한글 값을 그대로 저장하지 않고 URL Encoding을 적용해 HTTP Cookie에서 사용할 수 있는 형태로 변환하도록 처리했습니다. Cookie 값을 다시 사용할 때는 디코딩하도록 구성해 한글 데이터를 유지하면서도 Undertow의 Cookie 검증 오류가 발생하지 않도록 했습니다.',
+
     comments: [],
   },
 ]
