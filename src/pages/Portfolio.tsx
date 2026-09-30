@@ -1,13 +1,145 @@
 import { useState } from 'react'
-import { useScrollReveal } from '../hooks/useScrollReveal'
+
+/*
+ * Portfolio의 Skills 탭에서 사용할 기술 목록.
+ *
+ * 단순히 "공부해본 기술"을 전부 넣기보다는
+ * 실제 업무 / 프로젝트 / 개인 서버 구축에서
+ * 사용해본 기술을 분야별로 나눠서 보여준다.
+ *
+ * 나중에 기술이 추가되면 해당 카테고리의
+ * items 배열에 문자열만 추가하면 된다.
+ */
 
 const SKILLS = [
-  { cat: 'Backend', items: ['Java', 'Spring Boot', 'Spring JPA', 'Python', 'Node.js'] },
-  { cat: 'Infrastructure', items: ['Linux', 'Docker', 'Docker Compose', 'Kubernetes', 'Jenkins'] },
-  { cat: 'Database', items: ['MySQL', 'PostgreSQL', 'Redis', 'MongoDB'] },
-  { cat: 'Monitoring', items: ['Grafana', 'Prometheus', 'ELK Stack', 'Loki'] },
-  { cat: 'Network', items: ['Nginx', 'HAProxy', 'Reverse Proxy', 'SSL/TLS'] },
-  { cat: 'Cloud & Tools', items: ['Git', 'GitHub Actions', 'Proxmox', 'Ansible'] },
+  {
+    /*
+     * 현재 실무에서 가장 중요한 영역.
+     * 공공기관 G-Cloud 전환 업무에서
+     * 실제 WEB/WAS 서버를 다루면서 사용했다.
+     */
+    cat: 'WEB / WAS',
+    items: [
+      'Apache HTTP Server',
+      'Nginx',
+      'WildFly',
+      'JBoss',
+      'JSP / Servlet',
+    ],
+  },
+
+  {
+    /*
+     * 백엔드 개발 관련 기술.
+     *
+     * Java/Spring 계열 프로젝트 경험과
+     * 앞으로 개인 홈페이지 백엔드에서도
+     * 계속 사용할 영역이다.
+     */
+    cat: 'Backend',
+    items: [
+      'Java',
+      'Spring',
+      'Spring Boot',
+      'Spring JPA',
+      'Spring Security',
+      'REST API',
+      'OAuth 2.0',
+      'JWT',
+    ],
+  },
+
+  {
+    /*
+     * 현재 개인 홈페이지와
+     * 이전 프로젝트에서 사용한 Frontend 기술.
+     */
+    cat: 'Frontend',
+    items: [
+      'React',
+      'React Native',
+      'TypeScript',
+      'JavaScript',
+      'Vite',
+      'Tailwind CSS',
+    ],
+  },
+
+  {
+    /*
+     * EC2 / ODROID 홈서버 / CI/CD 구축 과정에서
+     * 실제로 사용하고 있는 인프라 기술.
+     */
+    cat: 'Infrastructure',
+    items: [
+      'Linux',
+      'Rocky Linux',
+      'Ubuntu',
+      'AWS EC2',
+      'Docker',
+      'Jenkins',
+    ],
+  },
+
+  {
+    /*
+     * 실무 및 프로젝트에서 사용한
+     * DB와 캐시 관련 기술.
+     */
+    cat: 'Database / Cache',
+    items: [
+      'Oracle',
+      'Redis',
+      'Redis Sentinel',
+    ],
+  },
+
+  {
+    /*
+     * 공공기관 시스템 운영 검증과
+     * 개인 서버 관제에 관련된 기술.
+     */
+    cat: 'Monitoring / Test',
+    items: [
+      'Whatap',
+      'JMeter',
+      'Prometheus',
+      'Grafana',
+    ],
+  },
+
+  {
+    /*
+     * SSAFY 프로젝트에서 사용한
+     * 게임 / 실시간 통신 관련 기술.
+     *
+     * Rush Owls에서 Unity와 Photon Fusion을
+     * 활용한 실시간 멀티플레이를 구현했다.
+     */
+    cat: 'Game / Realtime',
+    items: [
+      'Unity',
+      'C#',
+      'Photon Fusion',
+      'WebSocket',
+    ],
+  },
+
+  {
+    /*
+     * 개발 및 운영 과정에서 사용하는
+     * 형상관리 / 네트워크 / 협업 도구.
+     */
+    cat: 'Tools / Network',
+    items: [
+      'Git',
+      'GitHub',
+      'SVN',
+      'Jira',
+      'Reverse Proxy',
+      'SSL / TLS',
+    ],
+  },
 ]
 
 const PROJECTS = [
@@ -47,8 +179,6 @@ const PROJECTS = [
 
 export default function Portfolio() {
   const [activeTab, setActiveTab] = useState<'about' | 'experience' | 'skills' | 'projects'>('about')
-  const skillsRef = useScrollReveal()
-  const projectsRef = useScrollReveal()
 
   return (
     <div style={{ background: '#09090b', minHeight: '100vh', paddingTop: '64px' }}>
@@ -75,7 +205,7 @@ export default function Portfolio() {
               marginBottom: '40px',
             }}
           >
-            오승호
+            Seungho's Portfolio
           </h1>
 
           {/* Tabs */}
@@ -116,22 +246,37 @@ export default function Portfolio() {
         {activeTab === 'about' && (
           <div style={{ maxWidth: '720px' }}>
             <div style={{ display: 'flex', alignItems: 'flex-start', gap: '40px', flexWrap: 'wrap', marginBottom: '56px' }}>
-              <div
+              {/* 
+                프로필 사진
+
+                public/images/profile.webp 파일을 사용한다.
+                public 폴더의 파일은 Vite build 시 dist에 자동으로 복사되므로
+                "/images/profile.webp" 경로로 바로 접근할 수 있다.
+              */}
+              <img
+                src="/images/profile.webp"
+                alt="오승호 프로필 사진"
                 style={{
-                  width: '120px',
-                  height: '120px',
+                  width: '300px',
+                  height: '300px',
+
+                  // 사진 모서리를 기존 디자인처럼 둥글게 처리
                   borderRadius: '16px',
-                  background: 'linear-gradient(135deg, rgba(245,158,11,0.2), rgba(245,158,11,0.05))',
-                  border: '1px solid rgba(245,158,11,0.2)',
+
+                  // 사진 비율이 달라도 120 x 120 영역을 꽉 채운다.
+                  // 남는 부분은 자동으로 잘린다.
+                  objectFit: 'cover',
+
+                  // 기존 Portfolio의 주황색 디자인을 유지하기 위한 테두리
+                  border: '1px solid rgba(245,158,11,0.25)',
+
+                  // flex 영역이 좁아졌을 때 사진이 찌그러지는 것을 방지
                   flexShrink: 0,
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  fontSize: '48px',
+
+                  // img 아래에 생길 수 있는 미세한 baseline 여백 제거
+                  display: 'block',
                 }}
-              >
-                👨‍💻
-              </div>
+              />
               <div>
                 <h2 style={{ fontFamily: "'Outfit', sans-serif", fontSize: '28px', fontWeight: 800, color: '#f4f4f5', marginBottom: '8px' }}>
                   Oh Seungho
@@ -222,7 +367,7 @@ export default function Portfolio() {
 
         {/* Skills */}
         {activeTab === 'skills' && (
-          <div ref={skillsRef} className="scroll-reveal">
+          <div >
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 280px), 1fr))', gap: '20px' }}>
               {SKILLS.map((group) => (
                 <div
@@ -262,7 +407,7 @@ export default function Portfolio() {
 
         {/* Projects */}
         {activeTab === 'projects' && (
-          <div ref={projectsRef} className="scroll-reveal">
+          <div >
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 280px), 1fr))', gap: '24px' }}>
               {PROJECTS.map((proj) => (
                 <div
